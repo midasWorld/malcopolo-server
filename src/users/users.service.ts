@@ -1,31 +1,53 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
 import * as uuid from 'uuid';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { UserLoginDto } from './dto/user-login.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
+  constructor(private prisma: PrismaService) {}
+
   async create(request: CreateUserDto): Promise<void> {
     const { email, password, name } = request;
 
-    await this.checkUserExists(email);
+    const userExists = await this.checkUserExists(email);
+    if (userExists) {
+      throw new BadRequestException('해당 이메일로는 가입이 불가능합니다.');
+    }
 
     const signupVerifyToken = uuid.v1();
 
-    await this.saveUser(email, password, name);
+    await this.save(email, password, name);
     await this.sendMemberJoinEmail(email, signupVerifyToken);
   }
 
-  private checkUserExists(email: string): boolean {
-    // TODO: DB 연동 후 구현 예정
-    return false;
+  private async checkUserExists(email: string): Promise<boolean> {
+    const user = await this.prisma.user.findFirst({
+      where: { email },
+    });
+    return user != null;
   }
 
-  private saveUser(email: string, password: string, name: string): void {
-    // TODO: DB 연동 후 구현 예정
-    return;
+  private async save(
+    email: string,
+    password: string,
+    name: string,
+  ): Promise<void> {
+    this.prisma.user.create({
+      data: {
+        email,
+        password,
+        name,
+      },
+    });
   }
 
   private async sendMemberJoinEmail(
@@ -51,6 +73,18 @@ export class UsersService {
   }
 
   async getUserInfo(id: number): Promise<UserDto> {
-    throw new Error('Method not implemented.');
+    const user: User = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('해당 회원은 존재하지 않습니다.');
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    };
   }
 }
