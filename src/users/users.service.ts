@@ -10,10 +10,14 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import { UserLoginDto } from './dto/user-login.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from '@prisma/client';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+  ) {}
 
   async create(request: CreateUserDto): Promise<void> {
     const { email, password, name } = request;
@@ -23,10 +27,10 @@ export class UsersService {
       throw new BadRequestException('해당 이메일로는 가입이 불가능합니다.');
     }
 
-    const signupVerifyToken = uuid.v1();
-
-    await this.save(email, password, name);
-    await this.sendMemberJoinEmail(email, signupVerifyToken);
+    await this.save(email, password, name).then((userId) => {
+      const signupVerifyToken = uuid.v1();
+      this.sendMemberJoinEmail(email, signupVerifyToken, userId);
+    });
   }
 
   private async checkUserExists(email: string): Promise<boolean> {
@@ -40,21 +44,34 @@ export class UsersService {
     email: string,
     password: string,
     name: string,
-  ): Promise<void> {
-    this.prisma.user.create({
+  ): Promise<number> {
+    const user = await this.prisma.user.create({
       data: {
         email,
         password,
         name,
       },
     });
+
+    return user.id;
   }
 
   private async sendMemberJoinEmail(
     email: string,
     signupVerifyToken: string,
+    userId: number,
   ): Promise<void> {
-    // TODO: Email Service 구현 예정
+    await this.emailService.sendMemberJoinVerification(
+      email,
+      signupVerifyToken,
+    );
+
+    await this.prisma.emailAuth.create({
+      data: {
+        token: signupVerifyToken,
+        userId,
+      },
+    });
   }
 
   async verifyEmail(request: VerifyEmailDto): Promise<string> {
