@@ -3,14 +3,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UserDto } from './dto/user.dto';
-import * as uuid from 'uuid';
-import { VerifyEmailDto } from './dto/verify-email.dto';
-import { UserLoginDto } from './dto/user-login.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from '@prisma/client';
 import { EmailService } from 'src/email/email.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import * as uuid from 'uuid';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UserLoginDto } from './dto/user-login.dto';
+import { UserDto } from './dto/user.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Injectable()
 export class UsersService {
@@ -75,10 +75,31 @@ export class UsersService {
   }
 
   async verifyEmail(request: VerifyEmailDto): Promise<string> {
-    // TODO: DB 연동 후 구현 예정
-    // 1. DB 에서 signupVerifyToken으로 회원 가입 처리중인 회원 존재 여부 확인
-    // 2. 곧바로 로그인을 위해 JWT 발급
+    const { signupVerifyToken } = request;
+    const emailAuth = await this.prisma.emailAuth.findUnique({
+      where: { token: signupVerifyToken },
+      include: {
+        user: true,
+      },
+    });
 
+    if (emailAuth == null || emailAuth.user == null) {
+      throw new NotFoundException('해당 회원 정보가 존재하지 않습니다.');
+    }
+
+    const user = emailAuth.user;
+    if (user.emailVerified != null) {
+      throw new BadRequestException('이미 인증되었습니다.');
+    }
+
+    await this.prisma.user.update({
+      data: {
+        emailVerified: new Date(),
+      },
+      where: { id: user.id },
+    });
+
+    // TODO: AuthService 구현 후 로그인(JWT 반환) 구현 예정
     throw new Error('Method not implemented.');
   }
 
