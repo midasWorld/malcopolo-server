@@ -104,9 +104,16 @@ export class UsersService {
   }
 
   async login(request: UserLoginDto): Promise<string> {
-    // TODO: DB 연동 후 구현 예정
-    // 1. email, password → DB 확인 (없으면 에러)
-    // 2. JWT 발급
+    const { email, password } = request;
+    const user = await this.prisma.user.findFirst({
+      where: { email, password },
+    });
+
+    if (!user) {
+      throw new NotFoundException('해당 회원 정보가 존재하지 않습니다.');
+    }
+
+    // TODO: AuthService 구현 후 로그인(JWT 반환) 구현 예정
     throw new Error('Method not implemented.');
   }
 
