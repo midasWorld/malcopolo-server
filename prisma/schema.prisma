@@ -24,6 +24,5 @@ model EmailAuth {
   id        Int       @id @default(autoincrement())
   token     String    @unique
   userId    Int       @unique
-  verified  DateTime?
   user      User      @relation(fields: [userId], references: [id])      
 }
