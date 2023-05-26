@@ -11,12 +11,14 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserLoginDto } from './dto/user-login.dto';
 import { UserDto } from './dto/user.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private prisma: PrismaService,
     private emailService: EmailService,
+    private authService: AuthService,
   ) {}
 
   async create(request: CreateUserDto): Promise<void> {
@@ -99,8 +101,7 @@ export class UsersService {
       where: { id: user.id },
     });
 
-    // TODO: AuthService 구현 후 로그인(JWT 반환) 구현 예정
-    throw new Error('Method not implemented.');
+    return this.authService.createJwtToken(user.id);
   }
 
   async login(request: UserLoginDto): Promise<string> {
@@ -113,8 +114,7 @@ export class UsersService {
       throw new NotFoundException('해당 회원 정보가 존재하지 않습니다.');
     }
 
-    // TODO: AuthService 구현 후 로그인(JWT 반환) 구현 예정
-    throw new Error('Method not implemented.');
+    return this.authService.createJwtToken(user.id);
   }
 
   async getUserInfo(id: number): Promise<UserDto> {
