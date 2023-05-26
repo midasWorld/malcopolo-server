@@ -1,7 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import authConfig from 'src/config/auth.config';
 import * as jwt from 'jsonwebtoken';
+
+interface JwtUserInfo {
+  id: number;
+}
 
 @Injectable()
 export class AuthService {
@@ -14,5 +18,17 @@ export class AuthService {
       expiresIn: this.config.jwt.expiresInSec,
       issuer: this.config.jwt.issuer,
     });
+  }
+
+  verifyToken(token: string) {
+    try {
+      const payload = jwt.verify(token, this.config.jwt.secret) as JwtUserInfo;
+
+      const { id } = payload;
+
+      return id;
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
   }
 }

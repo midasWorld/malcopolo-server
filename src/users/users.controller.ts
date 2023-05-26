@@ -1,7 +1,9 @@
+import { AuthService } from 'src/auth/auth.service';
 import {
   Body,
   Controller,
   Get,
+  Headers,
   Param,
   ParseIntPipe,
   Post,
@@ -15,7 +17,10 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly authService: AuthService,
+  ) {}
 
   @Post()
   async create(@Body() request: CreateUserDto): Promise<void> {
@@ -33,7 +38,14 @@ export class UsersController {
   }
 
   @Get('/:id')
-  async getUserInfo(@Param('id', ParseIntPipe) id: number): Promise<UserDto> {
+  async getUserInfo(
+    @Headers() headers: any,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<UserDto> {
+    const token = headers.authorization.split('Bearer ')[1];
+
+    this.authService.verifyToken(token);
+
     return await this.usersService.getUserInfo(id);
   }
 }
