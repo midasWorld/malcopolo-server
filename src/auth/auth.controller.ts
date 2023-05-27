@@ -1,13 +1,12 @@
 import { AuthService } from 'src/auth/auth.service';
-import { Body, Controller, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { SignupUserDto } from './dto/signup-user.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {
-  }
+  constructor(private readonly authService: AuthService) {}
 
   @Post()
   async create(@Body() request: SignupUserDto): Promise<void> {
@@ -22,5 +21,10 @@ export class AuthController {
   @Post('/login')
   async login(@Body() request: LoginUserDto): Promise<string> {
     return await this.authService.login(request);
+  }
+
+  @Get('/csrf-token')
+  async csrfToken() {
+    return await this.authService.createCSRFToken();
   }
 }

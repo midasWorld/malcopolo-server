@@ -127,4 +127,8 @@ export class AuthService {
       issuer: this.config.jwt.issuer,
     });
   }
+
+  async createCSRFToken() {
+    return bcrypt.hash(this.config.csrf.secret, 1);
+  }
 }
