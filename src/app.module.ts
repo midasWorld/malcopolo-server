@@ -9,9 +9,11 @@ import { validationSchema } from './config/validation.schema';
 import { HealthCheckModule } from './health-check/health-check.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     HealthCheckModule,
     ConfigModule.forRoot({
       envFilePath: [`.env.${process.env.NODE_ENV}`],
