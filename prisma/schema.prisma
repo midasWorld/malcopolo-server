@@ -14,7 +14,7 @@ model User {
   id              Int         @id @default(autoincrement())
   email           String      @unique
   emailVerified   DateTime?
-  name            String?
+  name            String?     @db.VarChar(30)
   password        String
   image           String?
   emailAuth       EmailAuth?
