@@ -1,0 +1,50 @@
+name: Server CI
+
+on:
+  push:
+    branches:
+      - main
+      - release
+      - develop
+  pull_request:
+    branches:
+      - main
+      - release
+      - develop
+
+permissions:
+  contents: read
+  issues: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository 가져오기
+        uses: actions/checkout@v3
+
+      - name: Node JS 설치
+        uses: actions/setup-node@v3
+        with:
+          node-version: 19.7.0
+
+      - name: Cache node modules
+        uses: actions/cache@v3
+        id: cache
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Dependencies 설치
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: ESLint 실행
+        run: npm run lint
+        if: ${{ always() }}
+
+      - name: 프로젝트 빌드
+        run: npm run build
+        if: ${{ always() }}
