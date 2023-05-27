@@ -32,7 +32,6 @@ export class AuthService {
       throw new BadRequestException('해당 이메일로는 가입이 불가능합니다.');
     }
 
-    console.log(typeof this.config.bcrypt.saltRounds);
     const hashed = await bcrypt.hash(password, this.config.bcrypt.saltRounds);
     await this.save(email, hashed, name).then((userId) => {
       const signupVerifyToken = uuid.v1();
@@ -126,5 +125,9 @@ export class AuthService {
       expiresIn: this.config.jwt.expiresInSec,
       issuer: this.config.jwt.issuer,
     });
+  }
+
+  async createCSRFToken() {
+    return bcrypt.hash(this.config.csrf.secret, 1);
   }
 }
