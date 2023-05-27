@@ -6,10 +6,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
+import { UserCreatedEvent } from 'src/auth/event/user-created.event';
+import { EventType } from 'src/common/event.type';
 import authConfig from 'src/config/auth.config';
-import { EmailService } from 'src/email/email.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as uuid from 'uuid';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -20,7 +22,7 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private emailService: EmailService,
+    private eventEmitter: EventEmitter2,
     @Inject(authConfig.KEY) private config: ConfigType<typeof authConfig>,
   ) {}
 
@@ -36,7 +38,10 @@ export class AuthService {
     await this.save(email, hashed, name).then((userId) => {
       const signupVerifyToken = uuid.v1();
       this.saveSignupVerifyToken(userId, signupVerifyToken);
-      this.sendMemberJoinEmail(email, signupVerifyToken);
+      this.eventEmitter.emit(
+        EventType.UserCreated,
+        new UserCreatedEvent(email, signupVerifyToken),
+      );
     });
   }
 
@@ -63,13 +68,6 @@ export class AuthService {
     await this.prisma.emailAuth.create({
       data: { userId, token },
     });
-  }
-
-  private async sendMemberJoinEmail(email: string, signupVerifyToken: string) {
-    await this.emailService.sendMemberJoinVerification(
-      email,
-      signupVerifyToken,
-    );
   }
 
   async verifyEmail(request: VerifyEmailDto): Promise<string> {
