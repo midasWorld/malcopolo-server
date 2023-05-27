@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { EmailService } from 'src/email/email.service';
@@ -12,6 +13,7 @@ import { UserLoginDto } from './dto/user-login.dto';
 import { UserDto } from './dto/user.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { AuthService } from 'src/auth/auth.service';
+import bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -29,7 +31,8 @@ export class UsersService {
       throw new BadRequestException('해당 이메일로는 가입이 불가능합니다.');
     }
 
-    await this.save(email, password, name).then((userId) => {
+    const hashed = await bcrypt.hash(password, 12);
+    await this.save(email, hashed, name).then((userId) => {
       const signupVerifyToken = uuid.v1();
       this.sendMemberJoinEmail(email, signupVerifyToken, userId);
     });
@@ -112,6 +115,13 @@ export class UsersService {
 
     if (!user) {
       throw new NotFoundException('해당 회원 정보가 존재하지 않습니다.');
+    }
+
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      throw new UnauthorizedException(
+        '아이디(이메일) 또는 비밀번호가 유효하지 않습니다.',
+      );
     }
 
     return this.authService.createJwtToken(user.id);
