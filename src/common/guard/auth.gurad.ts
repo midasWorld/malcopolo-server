@@ -1,10 +1,24 @@
-import { AuthService } from 'src/auth/auth.service';
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
+import * as jwt from 'jsonwebtoken';
 import { Observable } from 'rxjs';
+import authConfig from 'src/config/auth.config';
+
+type JwtPayload = {
+  id: string;
+};
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private authService: AuthService) {}
+  constructor(
+    @Inject(authConfig.KEY) private config: ConfigType<typeof authConfig>,
+  ) {}
 
   canActivate(
     context: ExecutionContext,
@@ -16,7 +30,11 @@ export class AuthGuard implements CanActivate {
   private validateRequest(request) {
     const token = request.headers.authorization.split('Bearer ')[1];
 
-    this.authService.verifyToken(token);
+    try {
+      jwt.verify(token, this.config.jwt.secret) as JwtPayload;
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
 
     return true;
   }
