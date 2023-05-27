@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './app/auth/auth.module';
 import authConfig from './common/config/auth.config';
 import emailConfig from './common/config/email.config';
 import { validationSchema } from './common/config/validation.schema';

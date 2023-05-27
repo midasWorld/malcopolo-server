@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { EmailService } from 'src/email/email.service';
+import { EmailService } from 'src/app/email/email.service';
 import { UserCreatedEvent } from './user-created.event';
 import { EventType } from 'src/common/event.type';
 

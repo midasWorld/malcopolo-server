@@ -9,7 +9,7 @@ import { ConfigType } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-import { UserCreatedEvent } from 'src/auth/event/user-created.event';
+import { UserCreatedEvent } from 'src/app/auth/event/user-created.event';
 import { EventType } from 'src/common/event.type';
 import authConfig from 'src/common/config/auth.config';
 import { PrismaService } from 'src/common/prisma/prisma.service';

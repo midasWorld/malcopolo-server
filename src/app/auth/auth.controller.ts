@@ -1,4 +1,4 @@
-import { AuthService } from 'src/auth/auth.service';
+import { AuthService } from 'src/app/auth/auth.service';
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { SignupUserDto } from './dto/signup-user.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
