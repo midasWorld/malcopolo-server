@@ -1,4 +1,4 @@
-import { csrfCheck } from './middleware/csrf.middleware';
+import { csrfCheck } from './common/middleware/csrf.middleware';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
@@ -8,6 +8,8 @@ import { HttpExceptionFilter } from './common/filter/http.exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.setGlobalPrefix('/api');
 
   app.use(helmet());
   app.use(morgan('tiny'));
@@ -27,6 +29,6 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

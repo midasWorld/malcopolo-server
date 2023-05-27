@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import authConfig from './config/auth.config';
-import emailConfig from './config/email.config';
-import { validationSchema } from './config/validation.schema';
-import { HealthCheckModule } from './health-check/health-check.module';
-import { PrismaModule } from './prisma/prisma.module';
-import { UsersModule } from './users/users.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { AuthModule } from './app/auth/auth.module';
+import { HealthCheckModule } from './app/health-check/health-check.module';
+import { UsersModule } from './app/users/users.module';
+import authConfig from './common/config/auth.config';
+import emailConfig from './common/config/email.config';
+import { validationSchema } from './common/config/validation.schema';
+import { PrismaModule } from './common/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -25,7 +23,5 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     AuthModule,
     PrismaModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

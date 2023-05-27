@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import Mail from 'nodemailer/lib/mailer';
-import emailConfig from 'src/config/email.config';
+import emailConfig from 'src/common/config/email.config';
 import * as nodemailer from 'nodemailer';
 
 interface EmailOptions {
@@ -38,7 +38,7 @@ export class EmailService {
       to: emailAddress,
       subject: '회원가입 이메일 인증',
       html: `
-        <form action="${url}" method="POST" style="background-color: #f8f9f9; padding: 2.5em">
+        <form action="${url}" method="GET" style="background-color: #f8f9f9; padding: 2.5em">
           <h1><span style="color: #819ff7">이메일 인증</span><br />링크를 안내드립니다.</h1>
           <div style="margin-top: 3em">
             <p style="margin-bottom: 0">아래의 <b>인증하기</b> 버튼을 클릭하면</p>

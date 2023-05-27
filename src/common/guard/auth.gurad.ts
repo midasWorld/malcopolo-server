@@ -8,7 +8,7 @@ import {
 import { ConfigType } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
 import { Observable } from 'rxjs';
-import authConfig from 'src/config/auth.config';
+import authConfig from 'src/common/config/auth.config';
 
 type JwtPayload = {
   id: string;
