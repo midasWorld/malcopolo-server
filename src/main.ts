@@ -1,4 +1,4 @@
-import { csrfCheck } from './middleware/csrf.middleware';
+import { csrfCheck } from './common/middleware/csrf.middleware';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
