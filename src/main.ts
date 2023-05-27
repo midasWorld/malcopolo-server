@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import helmet from 'helmet';
 import * as morgan from 'morgan';
 import { ValidationPipe } from '@nestjs/common';
+import { HttpExceptionFilter } from './common/filter/http.exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,6 +24,8 @@ async function bootstrap() {
       stopAtFirstError: true,
     }),
   );
+
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(3000);
 }
