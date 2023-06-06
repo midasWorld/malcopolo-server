@@ -1,12 +1,25 @@
 import { AuthService } from 'src/app/auth/auth.service';
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Post,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { SignupUserDto } from './dto/signup-user.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import authConfig from 'src/common/config/auth.config';
+import { ConfigType } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @Inject(authConfig.KEY) private config: ConfigType<typeof authConfig>,
+  ) {}
 
   @Post()
   async create(@Body() request: SignupUserDto): Promise<void> {
@@ -19,8 +32,24 @@ export class AuthController {
   }
 
   @Post('/login')
-  async login(@Body() request: LoginUserDto): Promise<string> {
-    return await this.authService.login(request);
+  async login(
+    @Body() request: LoginUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<string> {
+    const token = await this.authService.login(request);
+    this.setToken(res, token);
+
+    return token;
+  }
+
+  private setToken(res, token) {
+    const options = {
+      maxAge: this.config.jwt.cookie.maxAge,
+      httpOnly: true,
+      sameSite: this.config.jwt.cookie.sameSite,
+      secure: true,
+    };
+    res.cookie(this.config.jwt.cookie.key, token, options);
   }
 
   @Get('/csrf-token')

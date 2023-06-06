@@ -28,7 +28,11 @@ export class AuthGuard implements CanActivate {
   }
 
   private validateRequest(request) {
-    const token = request.headers.authorization.split('Bearer ')[1];
+    let token = request.headers.authorization.split('Bearer ')[1];
+
+    if (!token) {
+      token = request.cookies[this.config.jwt.cookie.key];
+    }
 
     try {
       jwt.verify(token, this.config.jwt.secret) as JwtPayload;
