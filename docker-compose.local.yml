@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  malcopolo-server:
+    container_name: malcopolo-server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: development
+    ports:
+      - 8080:8080
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    depends_on:
+      - malcopolo-db
+    networks:
+      - malcopolo
+
+  malcopolo-db:
+    container_name: malcopolo-db
+    image: mysql:8.0
+    restart: always
+    ports:
+      - ${MYSQL_PORT}:3306
+    env_file:
+      - .env.development
+    volumes:
+      - ~/malcopolo-db:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    networks:
+      - malcopolo
+
+  malcopolo-testdb:
+    container_name: malcopolo-testdb
+    image: mysql:8.0
+    restart: always
+    ports:
+      - 3331:3306
+    env_file:
+      - .env.test
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    networks:
+      - malcopolo
+
+networks:
+  malcopolo:
+    driver: bridge

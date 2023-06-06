@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { Observable } from 'rxjs';
 import authConfig from 'src/common/config/auth.config';
 
@@ -28,7 +28,11 @@ export class AuthGuard implements CanActivate {
   }
 
   private validateRequest(request) {
-    const token = request.headers.authorization.split('Bearer ')[1];
+    let token = request.headers.authorization.split('Bearer ')[1];
+
+    if (!token) {
+      token = request.cookies[this.config.jwt.cookie.key];
+    }
 
     try {
       jwt.verify(token, this.config.jwt.secret) as JwtPayload;

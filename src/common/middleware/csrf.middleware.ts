@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 
 export function csrfCheck(req: Request, res: Response, next: NextFunction) {
   if (
