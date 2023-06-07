@@ -13,7 +13,7 @@ import { UserCreatedEvent } from 'src/app/auth/event/user-created.event';
 import { EventType } from 'src/common/event.type';
 import authConfig from 'src/common/config/auth.config';
 import { PrismaService } from 'src/common/prisma/prisma.service';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
@@ -36,7 +36,7 @@ export class AuthService {
 
     const hashed = await bcrypt.hash(password, this.config.bcrypt.saltRounds);
     await this.save(email, hashed, name).then((userId) => {
-      const signupVerifyToken = uuid.v1();
+      const signupVerifyToken = uuidv4();
       this.saveSignupVerifyToken(userId, signupVerifyToken);
       this.eventEmitter.emit(
         EventType.UserCreated,
