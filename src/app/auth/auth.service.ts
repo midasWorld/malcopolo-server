@@ -3,16 +3,15 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { UserCreatedEvent } from 'src/app/auth/event/user-created.event';
-import { EventType } from 'src/common/event.type';
-import authConfig from 'src/common/config/auth.config';
-import { PrismaService } from 'src/common/prisma/prisma.service';
+import { UserCreatedEvent } from './event/user-created.event';
+import { EventType } from '../../common/event.type';
+import authConfig from '../../common/config/auth.config';
+import { PrismaService } from '../../common/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
@@ -110,7 +109,7 @@ export class AuthService {
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      throw new UnauthorizedException(
+      throw new NotFoundException(
         '아이디(이메일) 또는 비밀번호가 유효하지 않습니다.',
       );
     }
@@ -118,7 +117,7 @@ export class AuthService {
     return this.createJwtToken(user.id);
   }
 
-  createJwtToken(id: number) {
+  private createJwtToken(id: number) {
     return jwt.sign({ id }, this.config.jwt.secret, {
       expiresIn: this.config.jwt.expiresInSec,
       issuer: this.config.jwt.issuer,
