@@ -1,4 +1,9 @@
 {
+  "moduleNameMapper": {
+    "^@common/(.*)$": "<rootDir>/../src/common/$1",
+    "^@app/(.*)$": "<rootDir>/../src/app/$1",
+    "^@src/(.*)$": "<rootDir>/../src/$1"
+  },
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
   "testEnvironment": "node",
