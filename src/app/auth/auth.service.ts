@@ -3,17 +3,16 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { UserCreatedEvent } from 'src/app/auth/event/user-created.event';
-import { EventType } from 'src/common/event.type';
-import authConfig from 'src/common/config/auth.config';
-import { PrismaService } from 'src/common/prisma/prisma.service';
-import uuid from 'uuid';
+import { UserCreatedEvent } from './event/user-created.event';
+import { EventType } from '@common/event.type';
+import authConfig from '@common/config/auth.config';
+import { PrismaService } from '@common/prisma/prisma.service';
+import { v4 as uuidv4 } from 'uuid';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
@@ -36,7 +35,7 @@ export class AuthService {
 
     const hashed = await bcrypt.hash(password, this.config.bcrypt.saltRounds);
     await this.save(email, hashed, name).then((userId) => {
-      const signupVerifyToken = uuid.v1();
+      const signupVerifyToken = uuidv4();
       this.saveSignupVerifyToken(userId, signupVerifyToken);
       this.eventEmitter.emit(
         EventType.UserCreated,
@@ -105,12 +104,14 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new NotFoundException('해당 회원 정보가 존재하지 않습니다.');
+      throw new NotFoundException(
+        '아이디(이메일) 또는 비밀번호가 유효하지 않습니다.',
+      );
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      throw new UnauthorizedException(
+      throw new NotFoundException(
         '아이디(이메일) 또는 비밀번호가 유효하지 않습니다.',
       );
     }
@@ -118,7 +119,7 @@ export class AuthService {
     return this.createJwtToken(user.id);
   }
 
-  createJwtToken(id: number) {
+  private createJwtToken(id: number) {
     return jwt.sign({ id }, this.config.jwt.secret, {
       expiresIn: this.config.jwt.expiresInSec,
       issuer: this.config.jwt.issuer,

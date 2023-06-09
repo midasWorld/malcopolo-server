@@ -1,11 +1,12 @@
-import { csrfCheck } from './common/middleware/csrf.middleware';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import { ValidationPipe } from '@nestjs/common';
+import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filter/http.exception.filter';
-import cookieParser from 'cookie-parser';
+import { csrfCheck } from './common/middleware/csrf.middleware';
+import { LoggingInterceptor } from 'src/common/interceptor/logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,6 +17,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(morgan('tiny'));
   app.use(csrfCheck);
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   app.enableCors({
     origin: process.env.CORS_ALLOW_ORIGIN,

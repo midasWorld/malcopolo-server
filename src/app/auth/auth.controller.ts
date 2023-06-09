@@ -1,18 +1,10 @@
-import { AuthService } from 'src/app/auth/auth.service';
-import {
-  Body,
-  Controller,
-  Get,
-  Inject,
-  Post,
-  Query,
-  Res,
-} from '@nestjs/common';
+import authConfig from '@common/config/auth.config';
+import { Body, Controller, Get, Inject, Post, Put, Res } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
+import { AuthService } from './auth.service';
+import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
-import { LoginUserDto } from './dto/login-user.dto';
-import authConfig from 'src/common/config/auth.config';
-import { ConfigType } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
@@ -26,8 +18,8 @@ export class AuthController {
     await this.authService.signup(request);
   }
 
-  @Post('/email-verify')
-  async verifyEmail(@Query() request: VerifyEmailDto): Promise<string> {
+  @Put('/email-verify')
+  async verifyEmail(@Body() request: VerifyEmailDto): Promise<string> {
     return await this.authService.verifyEmail(request);
   }
 
