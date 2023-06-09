@@ -1,4 +1,4 @@
-import { AuthService } from 'src/app/auth/auth.service';
+import { AuthService } from './auth.service';
 import {
   Body,
   Controller,
@@ -11,7 +11,7 @@ import {
 import { SignupUserDto } from './dto/signup-user.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { LoginUserDto } from './dto/login-user.dto';
-import authConfig from 'src/common/config/auth.config';
+import authConfig from '@common/config/auth.config';
 import { ConfigType } from '@nestjs/config';
 
 @Controller('auth')

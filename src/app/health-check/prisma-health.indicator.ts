@@ -1,4 +1,4 @@
-import { PrismaService } from 'src/common/prisma/prisma.service';
+import { PrismaService } from '@common/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import {
   HealthIndicator,

@@ -7,8 +7,8 @@ import { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import * as uuid from 'uuid';
-import authConfig from '../../common/config/auth.config';
-import { PrismaService } from '../../common/prisma/prisma.service';
+import authConfig from '@common/config/auth.config';
+import { PrismaService } from '@common/prisma/prisma.service';
 import { AuthService } from './auth.service';
 
 jest.mock('bcrypt');

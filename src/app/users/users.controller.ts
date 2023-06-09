@@ -5,7 +5,7 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from 'src/common/guard/auth.gurad';
+import { AuthGuard } from '@common/guard/auth.gurad';
 import { UserDto } from './dto/user.dto';
 import { UsersService } from './users.service';
 
