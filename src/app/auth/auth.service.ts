@@ -104,7 +104,9 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new NotFoundException('해당 회원 정보가 존재하지 않습니다.');
+      throw new NotFoundException(
+        '아이디(이메일) 또는 비밀번호가 유효하지 않습니다.',
+      );
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
